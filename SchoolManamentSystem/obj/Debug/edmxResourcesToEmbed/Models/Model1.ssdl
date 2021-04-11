@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="courseModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="Class">
+    <Key>
+      <PropertyRef Name="classId" />
+    </Key>
+    <Property Name="classId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="classNumber" Type="varchar" MaxLength="8" Nullable="false" />
+    <Property Name="facId" Type="int" Nullable="false" />
+    <Property Name="schedule" Type="varchar" MaxLength="8" />
+    <Property Name="room" Type="varchar" MaxLength="6" />
+    <Property Name="IsDeleted" Type="bit" />
+  </EntityType>
+  <EntityType Name="Enroll">
+    <Key>
+      <PropertyRef Name="stuId" />
+      <PropertyRef Name="classId" />
+    </Key>
+    <Property Name="stuId" Type="int" Nullable="false" />
+    <Property Name="classId" Type="int" Nullable="false" />
+    <Property Name="grade" Type="varchar" MaxLength="2" />
+    <Property Name="IsDeleted" Type="bit" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Faculty">
+    <Key>
+      <PropertyRef Name="facId" />
+    </Key>
+    <Property Name="facId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="facNum" Type="varchar" MaxLength="20" Nullable="false" />
+    <Property Name="name" Type="varchar" MaxLength="20" Nullable="false" />
+    <Property Name="department" Type="varchar" MaxLength="20" />
+    <Property Name="rank" Type="varchar" MaxLength="10" />
+  </EntityType>
+  <EntityType Name="Student">
+    <Key>
+      <PropertyRef Name="stuId" />
+    </Key>
+    <Property Name="stuId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="stuNum" Type="varchar" MaxLength="20" Nullable="false" />
+    <Property Name="lastName" Type="varchar" MaxLength="20" Nullable="false" />
+    <Property Name="firstName" Type="varchar" MaxLength="20" Nullable="false" />
+    <Property Name="major" Type="varchar" MaxLength="10" />
+    <Property Name="credits" Type="int" />
+  </EntityType>
+  <Association Name="Class_facId_fk">
+    <End Role="Faculty" Type="Self.Faculty" Multiplicity="1" />
+    <End Role="Class" Type="Self.Class" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Faculty">
+        <PropertyRef Name="facId" />
+      </Principal>
+      <Dependent Role="Class">
+        <PropertyRef Name="facId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="Enroll_classId_fk">
+    <End Role="Class" Type="Self.Class" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="Enroll" Type="Self.Enroll" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Class">
+        <PropertyRef Name="classId" />
+      </Principal>
+      <Dependent Role="Enroll">
+        <PropertyRef Name="classId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="Enroll_stuId_fk">
+    <End Role="Student" Type="Self.Student" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="Enroll" Type="Self.Enroll" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Student">
+        <PropertyRef Name="stuId" />
+      </Principal>
+      <Dependent Role="Enroll">
+        <PropertyRef Name="stuId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="courseModelStoreContainer">
+    <EntitySet Name="Class" EntityType="Self.Class" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Enroll" EntityType="Self.Enroll" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Faculty" EntityType="Self.Faculty" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Student" EntityType="Self.Student" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="Class_facId_fk" Association="Self.Class_facId_fk">
+      <End Role="Faculty" EntitySet="Faculty" />
+      <End Role="Class" EntitySet="Class" />
+    </AssociationSet>
+    <AssociationSet Name="Enroll_classId_fk" Association="Self.Enroll_classId_fk">
+      <End Role="Class" EntitySet="Class" />
+      <End Role="Enroll" EntitySet="Enroll" />
+    </AssociationSet>
+    <AssociationSet Name="Enroll_stuId_fk" Association="Self.Enroll_stuId_fk">
+      <End Role="Student" EntitySet="Student" />
+      <End Role="Enroll" EntitySet="Enroll" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

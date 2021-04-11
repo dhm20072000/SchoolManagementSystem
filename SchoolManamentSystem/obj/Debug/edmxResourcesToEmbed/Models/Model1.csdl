@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="courseModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="Class">
+    <Key>
+      <PropertyRef Name="classId" />
+    </Key>
+    <Property Name="classId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="classNumber" Type="String" MaxLength="8" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="facId" Type="Int32" Nullable="false" />
+    <Property Name="schedule" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
+    <Property Name="room" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+    <Property Name="IsDeleted" Type="Boolean" />
+    <NavigationProperty Name="Faculty" Relationship="Self.Class_facId_fk" FromRole="Class" ToRole="Faculty" />
+    <NavigationProperty Name="Enrolls" Relationship="Self.Enroll_classId_fk" FromRole="Class" ToRole="Enroll" />
+  </EntityType>
+  <EntityType Name="Enroll">
+    <Key>
+      <PropertyRef Name="stuId" />
+      <PropertyRef Name="classId" />
+    </Key>
+    <Property Name="stuId" Type="Int32" Nullable="false" />
+    <Property Name="classId" Type="Int32" Nullable="false" />
+    <Property Name="grade" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+    <Property Name="IsDeleted" Type="Boolean" Nullable="false" />
+    <NavigationProperty Name="Class" Relationship="Self.Enroll_classId_fk" FromRole="Enroll" ToRole="Class" />
+    <NavigationProperty Name="Student" Relationship="Self.Enroll_stuId_fk" FromRole="Enroll" ToRole="Student" />
+  </EntityType>
+  <EntityType Name="Faculty">
+    <Key>
+      <PropertyRef Name="facId" />
+    </Key>
+    <Property Name="facId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="facNum" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="name" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="department" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+    <Property Name="rank" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+    <NavigationProperty Name="Classes" Relationship="Self.Class_facId_fk" FromRole="Faculty" ToRole="Class" />
+  </EntityType>
+  <EntityType Name="Student">
+    <Key>
+      <PropertyRef Name="stuId" />
+    </Key>
+    <Property Name="stuId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="stuNum" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="lastName" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="firstName" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="major" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+    <Property Name="credits" Type="Int32" />
+    <NavigationProperty Name="Enrolls" Relationship="Self.Enroll_stuId_fk" FromRole="Student" ToRole="Enroll" />
+  </EntityType>
+  <Association Name="Class_facId_fk">
+    <End Role="Faculty" Type="Self.Faculty" Multiplicity="1" />
+    <End Role="Class" Type="Self.Class" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Faculty">
+        <PropertyRef Name="facId" />
+      </Principal>
+      <Dependent Role="Class">
+        <PropertyRef Name="facId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="Enroll_classId_fk">
+    <End Role="Class" Type="Self.Class" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="Enroll" Type="Self.Enroll" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Class">
+        <PropertyRef Name="classId" />
+      </Principal>
+      <Dependent Role="Enroll">
+        <PropertyRef Name="classId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="Enroll_stuId_fk">
+    <End Role="Student" Type="Self.Student" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="Enroll" Type="Self.Enroll" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Student">
+        <PropertyRef Name="stuId" />
+      </Principal>
+      <Dependent Role="Enroll">
+        <PropertyRef Name="stuId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="courseEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Classes" EntityType="Self.Class" />
+    <EntitySet Name="Enrolls" EntityType="Self.Enroll" />
+    <EntitySet Name="Faculties" EntityType="Self.Faculty" />
+    <EntitySet Name="Students" EntityType="Self.Student" />
+    <AssociationSet Name="Class_facId_fk" Association="Self.Class_facId_fk">
+      <End Role="Faculty" EntitySet="Faculties" />
+      <End Role="Class" EntitySet="Classes" />
+    </AssociationSet>
+    <AssociationSet Name="Enroll_classId_fk" Association="Self.Enroll_classId_fk">
+      <End Role="Class" EntitySet="Classes" />
+      <End Role="Enroll" EntitySet="Enrolls" />
+    </AssociationSet>
+    <AssociationSet Name="Enroll_stuId_fk" Association="Self.Enroll_stuId_fk">
+      <End Role="Student" EntitySet="Students" />
+      <End Role="Enroll" EntitySet="Enrolls" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

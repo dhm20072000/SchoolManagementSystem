@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="courseModelStoreContainer" CdmEntityContainer="courseEntities">
+    <EntitySetMapping Name="Classes">
+      <EntityTypeMapping TypeName="courseModel.Class">
+        <MappingFragment StoreEntitySet="Class">
+          <ScalarProperty Name="classId" ColumnName="classId" />
+          <ScalarProperty Name="classNumber" ColumnName="classNumber" />
+          <ScalarProperty Name="facId" ColumnName="facId" />
+          <ScalarProperty Name="schedule" ColumnName="schedule" />
+          <ScalarProperty Name="room" ColumnName="room" />
+          <ScalarProperty Name="IsDeleted" ColumnName="IsDeleted" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Enrolls">
+      <EntityTypeMapping TypeName="courseModel.Enroll">
+        <MappingFragment StoreEntitySet="Enroll">
+          <ScalarProperty Name="stuId" ColumnName="stuId" />
+          <ScalarProperty Name="classId" ColumnName="classId" />
+          <ScalarProperty Name="grade" ColumnName="grade" />
+          <ScalarProperty Name="IsDeleted" ColumnName="IsDeleted" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Faculties">
+      <EntityTypeMapping TypeName="courseModel.Faculty">
+        <MappingFragment StoreEntitySet="Faculty">
+          <ScalarProperty Name="facId" ColumnName="facId" />
+          <ScalarProperty Name="facNum" ColumnName="facNum" />
+          <ScalarProperty Name="name" ColumnName="name" />
+          <ScalarProperty Name="department" ColumnName="department" />
+          <ScalarProperty Name="rank" ColumnName="rank" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Students">
+      <EntityTypeMapping TypeName="courseModel.Student">
+        <MappingFragment StoreEntitySet="Student">
+          <ScalarProperty Name="stuId" ColumnName="stuId" />
+          <ScalarProperty Name="stuNum" ColumnName="stuNum" />
+          <ScalarProperty Name="lastName" ColumnName="lastName" />
+          <ScalarProperty Name="firstName" ColumnName="firstName" />
+          <ScalarProperty Name="major" ColumnName="major" />
+          <ScalarProperty Name="credits" ColumnName="credits" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

@@ -1,0 +1,229 @@
+﻿@using PagedList;
+@using PagedList.Mvc;
+
+@model SchoolManamentSystem.Models.FacultyListViewModel
+
+@{
+    Layout = "~/Views/_BasePage.cshtml";
+  
+}
+
+
+
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    #txtsearch {
+        background-image: url('https://www.w3schools.com/css/searchicon.png');
+        background-repeat: no-repeat;
+        padding-left: 27px;
+        background-position-x: 5px;
+        background-position-y: 3px;
+        height: 30px;
+    }
+</style>
+
+<div class="container" style="margin-top: 3%">
+    <a href="#" class="btn btn-primary" onclick="AddNewFaculty()">Add New Faculty</a>
+
+    <p>
+        @using (Html.BeginForm("Index", "Faculty", FormMethod.Get))
+        {
+            @Html.DropDownList("pagesize", new List<SelectListItem> {
+                new SelectListItem {Text = "-- Select a row size --", Value = "0", Disabled = true, Selected = true},
+                new SelectListItem{Text = "2", Value = "2"},
+                new SelectListItem{Text = "4", Value = "4"},
+                new SelectListItem{Text = "6", Value = "6"}
+            }, new { @id = "pagesizelist" })
+            <br /><br />
+            <b>Search By</b>
+            @Html.RadioButton("searchBy", "Name") <text>Name</text>
+            @Html.RadioButton("searchBy", "Department") <text>Department</text>
+            @Html.RadioButton("searchBy", "Rank") <text>Rank</text>
+            <br />
+            @Html.TextBox("search", null, new { @id = "txtsearch" }) <input type="submit" value="Search" />
+        }
+    </p>
+
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Faculty Number</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Rank</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="LoadingStatus" style="color: red;"></tr>
+
+            @if (Model.ipage.Count() == 0)
+            {
+                <tr>
+                    <td colspan="6">No match found!</td>
+                </tr>
+            }
+            else
+            {
+                foreach (var item in Model.ipage)
+                {
+                    <tr class="row_@item.facId">
+                        <td>@item.facNum</td>
+                        <td>@item.name</td>
+                        <td>@item.department</td>
+                        <td>@item.rank</td>
+                        <td><a href="#" class="btn btn-info" onclick="EditFacultyRecord(@item.facId)"><span class="glyphicon glyphicon-edit"></span></a></td>
+                        <td><a href="#" class="btn btn-danger" onclick="DeleteFacultyRecord(@item.facId)"><span class="glyphicon glyphicon-trash"></span></a></td>
+                    </tr>
+                }
+            }
+
+        </tbody>
+    </table>
+
+    @Html.PagedListPager(Model.ipage, page => Url.Action("Index", new { page, searchBy = Request.QueryString["searchBy"], search = Request.QueryString["search"], pagesize = Request.QueryString["pagesize"] }),
+        new PagedListRenderOptions() { Display = PagedListDisplayMode.IfNeeded, DisplayPageCountAndCurrentLocation = true, DisplayItemSliceAndTotal = true }
+    )
+
+    <div class="modal fade" id="MyModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <a href="#" class="close" data-dismiss="modal">&times;</a>
+                    <h4 id="ModalTitle"></h4>
+                </div>
+                <div class="modal-body">
+                    <form id="form">
+                        <fieldset id="SubmitForm">
+                            @Html.HiddenFor(x => x.faculty.facId, new { @id = "facId" })
+                            <div class="form-group">
+                                @Html.TextBoxFor(x => x.faculty.facNum, new { @placeholder = "Faculty Number", @class = "form-control", @id = "facNum" })
+                            </div>
+                            <div class="form-group">
+                                @Html.TextBoxFor(x => x.faculty.name, new { @placeholder = "Name", @class = "form-control", @id = "name" })
+                            </div>
+                            <div class="form-group">
+                                @Html.TextBoxFor(x => x.faculty.department, new { @placeholder = "Department", @class = "form-control", @id = "department" })
+                            </div>
+                            <div class="form-group">
+                                @Html.TextBoxFor(x => x.faculty.rank, new { @placeholder = "Rank", @class = "form-control", @id = "rank" })
+                            </div>
+                        </fieldset>
+                    </form>
+                    <img src="~/Images/internetslowdown.gif" id="LoadingImage" class="center-block" style="display:none;width:100px;" />
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                    <a href="#" class="btn btn-danger" id="SaveFacultyRecord">Save</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="DeleteConfirmation">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <a href="#" class="close" data-dismiss="modal">&times;</a>
+                    <h4>Delete Faculty Record</h4>
+                </div>
+                <div class="modal-body">
+                    <h4>Are you sure you want to delete this record?</h4>
+                    <img src="~/Images/internetslowdown.gif" id="LoadingImage1" class="center-block" style="display:none;width:100px;" />
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                    <a href="#" class="btn btn-danger" id="ConfirmDelete">Confirm</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+
+<script>
+    $("#LoadingStatus").html("Please wait..........");
+    $("#LoadingStatus").fadeOut(500);
+
+    const txtsearch = document.getElementById("txtsearch");
+    txtsearch.addEventListener('keyup', function (e) {
+        if (e.target.value.length === 0 && e.which != 20) {
+            window.location = "/Faculty/Index";
+        }
+    })
+
+    $("#pagesizelist").on('change', function(event){
+        const form = $(event.target).parents("form");
+        form.submit();
+    })
+
+    function AddNewFaculty() {
+        $("#form")[0].reset();
+        $("#facId").val(0);
+        $("#ModalTitle").html("Add New Faculty");
+        $("#MyModal").modal();
+    }
+
+    function EditFacultyRecord(facultyId) {
+        var url = "/Faculty/GetFacultyById?facultyId=" + facultyId;
+        $("#ModalTitle").html("Update Faculty Record");
+        $("#MyModal").modal();
+        $.ajax({
+            type: 'GET',
+            url: url,
+            success: function (data) {
+                var obj = JSON.parse(data);
+                $("#facId").val(obj.facId);
+                $("#facNum").val(obj.facNum);
+                $("#name").val(obj.name);
+                $("#department").val(obj.department);
+                $("#rank").val(obj.rank);
+            }
+        })
+    }
+
+    $("#SaveFacultyRecord").click(function () {
+        $("#LoadingImage").show();
+        var data = $("#SubmitForm").serialize();
+
+        $.ajax({
+            type: "POST",
+            url: "/Faculty/SaveDataInDatabase",
+            data: data,
+            success: function (result) {
+                alert('Success!!!');
+                $("#LoadingImage").hide();
+                location.reload();
+                $("#MyModal").modal("hide");
+            }
+        })
+    })
+
+    var DeleteFacultyRecord = function (facultyId) {
+        $("#DeleteConfirmation").modal();
+        $("#facId").val(facultyId);
+    }
+
+    $("#ConfirmDelete").click(function () {
+        var facultyId = $("#facId").val();
+        $("#LoadingImage1").show();
+
+        $.ajax({
+            type: "POST",
+            url: "/Faculty/DeleteStudentRecord",
+            data: { facultyId: facultyId },
+            success: function (result) {
+                alert('Deleted!!!');
+                $("#LoadingImage1").hide();
+                $("#DeleteConfirmation").modal("hide");
+                $(".row_" + facultyId).remove();
+            }
+        })
+    })
+
+</script>
